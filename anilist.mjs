@@ -352,8 +352,6 @@ const fetchAni = (body) =>
     method: 'POST'
   })
 
-console.log(countDay, startPage)
-
 for (let i = 1; i <= countDay; i++) {
   fetchAni(search(i))
     .then((_) => _.json())
@@ -364,8 +362,12 @@ for (let i = 1; i <= countDay; i++) {
         }
       }) => {
         media.forEach((m) => {
-          if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
-          fs.writeFileSync(path.join(path.resolve(), `animes/${m.id}.json`), JSON.stringify(m))
+          try {
+            if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
+            fs.writeFileSync(path.join(path.resolve(), `animes/${m.id}.json`), JSON.stringify(m))
+          } catch (error) {
+            fs.writeFileSync(path.join(path.resolve(), `animes/_${m.id}.json`), JSON.stringify({}))
+          }
         })
       }
     )
