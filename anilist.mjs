@@ -4,8 +4,8 @@ import path from 'path'
 
 const search = (page = 1, perPage = 50) => ({
   query: `
-  query Media($page: Int = 1, $perPage: Int = 50, $id: Int, $idMal: Int, $startDate: FuzzyDateInt, $endDate: FuzzyDateInt, $season: MediaSeason, $seasonYear: Int, $type: MediaType, $format: MediaFormat, $status: MediaStatus, $episodes: Int, $duration: Int, $chapters: Int, $volumes: Int, $isAdult: Boolean, $genre: String, $tag: String, $minimumTagRank: Int, $tagCategory: String, $onList: Boolean, $licensedBy: String, $licensedById: Int, $averageScore: Int, $popularity: Int, $source: MediaSource, $countryOfOrigin: CountryCode, $isLicensed: Boolean, $search: String, $id_not: Int, $id_in: [Int], $id_not_in: [Int], $idMal_not: Int, $idMal_in: [Int], $idMal_not_in: [Int], $startDate_greater: FuzzyDateInt, $startDate_lesser: FuzzyDateInt, $startDate_like: String, $endDate_greater: FuzzyDateInt, $endDate_lesser: FuzzyDateInt, $endDate_like: String, $format_in: [MediaFormat], $format_not: MediaFormat, $format_not_in: [MediaFormat], $status_in: [MediaStatus], $status_not: MediaStatus, $status_not_in: [MediaStatus], $episodes_greater: Int, $episodes_lesser: Int, $duration_greater: Int, $duration_lesser: Int, $chapters_greater: Int, $chapters_lesser: Int, $volumes_greater: Int, $volumes_lesser: Int, $genre_in: [String], $genre_not_in: [String], $tag_in: [String], $tag_not_in: [String], $tagCategory_in: [String], $tagCategory_not_in: [String], $licensedBy_in: [String], $licensedById_in: [Int], $averageScore_not: Int, $averageScore_greater: Int, $averageScore_lesser: Int, $popularity_not: Int, $popularity_greater: Int, $popularity_lesser: Int, $source_in: [MediaSource], $sort: [MediaSort]) {
-    Page(page: $page, perPage: $perPage) {
+  query ($page: Int = 1, $id: Int, $type: MediaType, $isAdult: Boolean = false, $search: String, $format: [MediaFormat], $status: MediaStatus, $countryOfOrigin: CountryCode, $source: MediaSource, $season: MediaSeason, $seasonYear: Int, $year: String, $onList: Boolean, $yearLesser: FuzzyDateInt, $yearGreater: FuzzyDateInt, $episodeLesser: Int, $episodeGreater: Int, $durationLesser: Int, $durationGreater: Int, $chapterLesser: Int, $chapterGreater: Int, $volumeLesser: Int, $volumeGreater: Int, $licensedBy: [Int] = [45], $isLicensed: Boolean, $genres: [String], $excludedGenres: [String], $tags: [String], $excludedTags: [String], $minimumTagRank: Int, $sort: [MediaSort] = [POPULARITY_DESC, SCORE_DESC]) {
+    Page(page: $page, perPage: 20) {
       pageInfo {
         total
         perPage
@@ -13,13 +13,13 @@ const search = (page = 1, perPage = 50) => ({
         lastPage
         hasNextPage
       }
-      media(id: $id, idMal: $idMal, startDate: $startDate, endDate: $endDate, season: $season, seasonYear: $seasonYear, type: $type, format: $format, status: $status, episodes: $episodes, duration: $duration, chapters: $chapters, volumes: $volumes, isAdult: $isAdult, genre: $genre, tag: $tag, minimumTagRank: $minimumTagRank, tagCategory: $tagCategory, onList: $onList, licensedBy: $licensedBy, licensedById: $licensedById, averageScore: $averageScore, popularity: $popularity, source: $source, countryOfOrigin: $countryOfOrigin, isLicensed: $isLicensed, search: $search, id_not: $id_not, id_in: $id_in, id_not_in: $id_not_in, idMal_not: $idMal_not, idMal_in: $idMal_in, idMal_not_in: $idMal_not_in, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, startDate_like: $startDate_like, endDate_greater: $endDate_greater, endDate_lesser: $endDate_lesser, endDate_like: $endDate_like, format_in: $format_in, format_not: $format_not, format_not_in: $format_not_in, status_in: $status_in, status_not: $status_not, status_not_in: $status_not_in, episodes_greater: $episodes_greater, episodes_lesser: $episodes_lesser, duration_greater: $duration_greater, duration_lesser: $duration_lesser, chapters_greater: $chapters_greater, chapters_lesser: $chapters_lesser, volumes_greater: $volumes_greater, volumes_lesser: $volumes_lesser, genre_in: $genre_in, genre_not_in: $genre_not_in, tag_in: $tag_in, tag_not_in: $tag_not_in, tagCategory_in: $tagCategory_in, tagCategory_not_in: $tagCategory_not_in, licensedBy_in: $licensedBy_in, licensedById_in: $licensedById_in, averageScore_not: $averageScore_not, averageScore_greater: $averageScore_greater, averageScore_lesser: $averageScore_lesser, popularity_not: $popularity_not, popularity_greater: $popularity_greater, popularity_lesser: $popularity_lesser, source_in: $source_in, sort: $sort) {
+      media(id: $id, type: $type, season: $season, format_in: $format, status: $status, countryOfOrigin: $countryOfOrigin, source: $source, search: $search, onList: $onList, seasonYear: $seasonYear, startDate_like: $year, startDate_lesser: $yearLesser, startDate_greater: $yearGreater, episodes_lesser: $episodeLesser, episodes_greater: $episodeGreater, duration_lesser: $durationLesser, duration_greater: $durationGreater, chapters_lesser: $chapterLesser, chapters_greater: $chapterGreater, volumes_lesser: $volumeLesser, volumes_greater: $volumeGreater, licensedById_in: $licensedBy, isLicensed: $isLicensed, genre_in: $genres, genre_not_in: $excludedGenres, tag_in: $tags, tag_not_in: $excludedTags, minimumTagRank: $minimumTagRank, sort: $sort, isAdult: $isAdult) {
         id
-        type
         title {
           romaji
           english
           native
+          userPreferred
         }
         coverImage {
           extraLarge
@@ -57,14 +57,33 @@ const search = (page = 1, perPage = 50) => ({
           id
           site
         }
+        nextAiringEpisode {
+          airingAt
+          timeUntilAiring
+          episode
+        }
+        mediaListEntry {
+          id
+          status
+        }
+        studios(isMain: true) {
+          edges {
+            isMain
+            node {
+              id
+              name
+            }
+          }
+        }
       }
     }
   }
   `,
   variables: {
-    licensedById: 45,
     page,
-    perPage
+    perPage,
+    licensedBy: ['45'],
+    type: 'ANIME'
     // search: '1'
     // season: 'FALL',
     // seasonYear: '2022',
@@ -352,32 +371,28 @@ const fetchAni = (body) =>
     method: 'POST'
   })
 
-const promise = []
-
-for (let i = maxPage - startPage * 20; i > maxPage - startPage * 20 - 20; i--) {
-  console.log('i', i)
-  promise.push(
-    fetchAni(search(i))
-      .then((_) => _.json())
-      .then(
-        ({
-          data: {
-            Page: { media, pageInfo }
-          }
-        }) => {
-          console.log('pageInfo', pageInfo)
-          console.log('media', media.length)
-          media.forEach((m) => {
-            try {
-              if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
-              fs.writeFileSync(path.join(path.resolve(), `animes/${m.id}.json`), JSON.stringify(m))
-            } catch (error) {
-              fs.writeFileSync(path.join(path.resolve(), `animes/_${m.id}.json`), JSON.stringify({}))
-            }
-          })
+function resolve(i) {
+  return fetchAni(search(i))
+    .then((_) => _.json())
+    .then(
+      ({
+        data: {
+          Page: { media, pageInfo }
         }
-      )
-  )
+      }) => {
+        console.log('pageInfo', pageInfo)
+        console.log('media', media.length)
+        media.forEach((m) => {
+          try {
+            if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
+            fs.writeFileSync(path.join(path.resolve(), `animes/${m.id}.json`), JSON.stringify(m))
+          } catch (error) {
+            fs.writeFileSync(path.join(path.resolve(), `animes/_${m.id}.json`), JSON.stringify({}))
+          }
+        })
+        if (pageInfo.hasNextPage) resolve(i + 1)
+      }
+    )
 }
 
-await Promise.allSettled(promise)
+resolve(1)
