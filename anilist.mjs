@@ -338,8 +338,6 @@ const needCountOnDay = (maxPage * maxPrePage) / 15
 const countDay = needCountOnDay / maxPrePage
 const startPage = Math.floor((Date.now() - startDay) / DAY_MS) + 1
 
-console.log(`从${maxPage - startPage}页开始，${needCountOnDay}条一天`)
-
 /**
  *
  * @param {{ operationName?: 'Media'; query: string; variables: object }} body
@@ -354,25 +352,32 @@ const fetchAni = (body) =>
     method: 'POST'
   })
 
-for (let i = maxPage - startPage; i <= countDay; i++) {
-  fetchAni(search(i))
-    .then((_) => _.json())
-    .then(
-      ({
-        data: {
-          Page: { media, pageInfo }
-        }
-      }) => {
-        console.log(pageInfo)
-        console.log(media.length)
-        media.forEach((m) => {
-          try {
-            if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
-            fs.writeFileSync(path.join(path.resolve(), `animes/${m.id}.json`), JSON.stringify(m))
-          } catch (error) {
-            fs.writeFileSync(path.join(path.resolve(), `animes/_${m.id}.json`), JSON.stringify({}))
+const promise = []
+
+for (let i = maxPage - startPage * 20; i > maxPage - startPage * 20 - 20; i--) {
+  console.log('i', i)
+  promise.push(
+    fetchAni(search(i))
+      .then((_) => _.json())
+      .then(
+        ({
+          data: {
+            Page: { media, pageInfo }
           }
-        })
-      }
-    )
+        }) => {
+          console.log('pageInfo', pageInfo)
+          console.log('media', media.length)
+          media.forEach((m) => {
+            try {
+              if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
+              fs.writeFileSync(path.join(path.resolve(), `animes/${m.id}.json`), JSON.stringify(m))
+            } catch (error) {
+              fs.writeFileSync(path.join(path.resolve(), `animes/_${m.id}.json`), JSON.stringify({}))
+            }
+          })
+        }
+      )
+  )
 }
+
+await Promise.allSettled(promise)
