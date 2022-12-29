@@ -1,0 +1,23 @@
+{
+  "name": "anime-sync",
+  "version": "1.0.0",
+  "description": "",
+  "main": "anilist.js",
+  "scripts": {
+    "ani": "node anilist.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/upvorg/anime-sync.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/upvorg/anime-sync/issues"
+  },
+  "homepage": "https://github.com/upvorg/anime-sync#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
