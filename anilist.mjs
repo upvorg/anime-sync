@@ -334,9 +334,11 @@ const maxPrePage = 50
 const DAY_MS = 1000 * 60 * 60 * 24
 const startDay = 1672314700350
 
-const needCountOnDay = (maxPage * maxPrePage) / 30
+const needCountOnDay = (maxPage * maxPrePage) / 15
 const countDay = needCountOnDay / maxPrePage
 const startPage = Math.floor((Date.now() - startDay) / DAY_MS) + 1
+
+console.log(`从${maxPage - startPage}页开始，${needCountOnDay}条一天`)
 
 /**
  *
@@ -352,15 +354,17 @@ const fetchAni = (body) =>
     method: 'POST'
   })
 
-for (let i = 1; i <= countDay; i++) {
+for (let i = maxPage - startPage; i <= countDay; i++) {
   fetchAni(search(i))
     .then((_) => _.json())
     .then(
       ({
         data: {
-          Page: { media }
+          Page: { media, pageInfo }
         }
       }) => {
+        console.log(pageInfo)
+        console.log(media.length)
         media.forEach((m) => {
           try {
             if (fs.existsSync(path.join(path.resolve(), `animes/${m.id}.json`))) return
